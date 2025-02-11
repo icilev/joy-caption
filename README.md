@@ -17,21 +17,20 @@ This application uses the Replicate AI model `pipi32167/joy-caption` to generate
 ## Usage
 
 1. Place your images in the `images` directory (it will be created automatically when you start the app)
-2. Start the application:
+2. Run the application with your desired output directory name:
    ```bash
-   node index.js
+   npm start <output-directory-name>
    ```
-3. (Optional) Create a `.prompt` file in the `images` directory with your custom prompt:
+   For example:
    ```bash
-   echo "an image of tom character" > images/.prompt
+   npm start my-captions
    ```
-4. To process all images in the directory, create a file named `.process_images` in the `images` directory:
-   ```bash
-   touch images/.process_images
-   ```
-5. The application will process all images and:
-   - Save individual captions in the `captions` directory as text files
-   - Save all captions collectively in `captions.json`
+
+3. The application will:
+   - Process all images from the `images` directory
+   - Create a new directory with the name you specified
+   - Save both images and their corresponding caption files in this directory
+   - Each image will have a matching .txt file with the same name (e.g., `photo.jpg` → `photo.txt`)
 
 ## Custom Prompts
 
@@ -43,39 +42,19 @@ echo "an image of tom character" > images/.prompt
 
 This will guide the AI model to focus on describing Tom's character in all images.
 
-## Output Formats
+## Output Structure
 
-### Individual Caption Files
-
-For each image, a corresponding text file will be created in the `captions` directory:
+For each processed image, you'll have two files in your output directory:
 ```
-captions/
-  image1.txt
+my-captions/
+  image1.jpg     # The original image
+  image1.txt     # The caption file
+  image2.jpg
   image2.txt
   ...
 ```
 
-Each text file contains:
-```
-Prompt: an image of tom character
-Caption: [generated caption]
-```
-
-### JSON Output
-
-All captions are also saved to `captions.json` in the following format:
-```json
-{
-  "image1.jpg": {
-    "caption": "generated caption for image 1",
-    "prompt": "an image of tom character"
-  },
-  "image2.png": {
-    "caption": "generated caption for image 2",
-    "prompt": "an image of tom character"
-  }
-}
-```
+Each text file contains the generated caption for its corresponding image.
 
 ## Supported Image Formats
 
