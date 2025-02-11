@@ -1,2 +1,14 @@
+# Node dependencies
+node_modules/
+
+# Environment variables
 .env
-.npmrc
+
+# macOS system files
+.DS_Store
+**/.DS_Store
+
+# Images and output directories
+/images/*
+!/images/.gitkeep
+/chonky/
