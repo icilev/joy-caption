@@ -16,6 +16,8 @@ This application uses the Replicate AI model `pipi32167/joy-caption` to generate
 
 ## Usage
 
+### Generate Captions
+
 1. Create a directory for your images inside the `images` folder:
    ```bash
    mkdir -p images/my-project
@@ -42,6 +44,20 @@ The application will:
 - Rename images sequentially (1.jpg, 2.jpg, etc.) while preserving their original extension
 - Save both the processed images and their corresponding caption files in this directory
 - Each image will have a matching .txt file with the same name (e.g., `1.jpg` → `1.txt`)
+
+### Resize Images
+
+You can also resize your images to 1024x1024 pixels (useful for AI training):
+
+```bash
+npm run resize my-project
+```
+
+This will:
+- Take images from `images/my-project`
+- Create a new directory `output/my-project-1024`
+- Resize each image to exactly 1024x1024 pixels
+- Center and crop the images to maintain the square aspect ratio
 
 ## Custom Prompts
 
@@ -78,13 +94,18 @@ images/
     screenshot.jpg
     ...
 output/
-  my-project/     # Processed files
+  my-project/     # Captioned files
     1.jpg
     1.txt
     2.png
     2.txt
     3.jpg
     3.txt
+    ...
+  my-project-1024/  # Resized files (if using resize)
+    1.jpg
+    2.png
+    3.jpg
     ...
 ```
 
