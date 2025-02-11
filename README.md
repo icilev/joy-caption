@@ -16,45 +16,62 @@ This application uses the Replicate AI model `pipi32167/joy-caption` to generate
 
 ## Usage
 
-1. Place your images in the `images` directory (it will be created automatically when you start the app)
-2. Run the application with your desired output directory name:
+1. Create a directory for your images inside the `images` folder:
    ```bash
-   npm start <output-directory-name>
-   ```
-   For example:
-   ```bash
-   npm start my-captions
+   mkdir -p images/my-project
    ```
 
-3. The application will:
-   - Process all images from the `images` directory
-   - Create a new directory with the name you specified
-   - Save both images and their corresponding caption files in this directory
-   - Each image will have a matching .txt file with the same name (e.g., `photo.jpg` → `photo.txt`)
+2. Copy your images into this directory:
+   ```bash
+   cp path/to/your/images/* images/my-project/
+   ```
 
-## Custom Prompts
+3. Run the application with the name of your directory:
+   ```bash
+   npm start my-project
+   ```
 
-You can customize the captioning by creating a `.prompt` file in the `images` directory. The content of this file will be used as a starting point for all image captions. For example:
+The application will:
+- Process all images from `images/my-project`
+- Create a new directory called `my-project` in the root folder
+- Save both the processed images and their corresponding caption files in this directory
+- Each image will have a matching .txt file with the same name (e.g., `photo.jpg` → `photo.txt`)
 
-```bash
-echo "an image of tom character" > images/.prompt
+## Directory Structure
+
+Before processing:
+```
+images/
+  my-project/     # Your input directory
+    image1.jpg
+    image2.jpg
+    ...
 ```
 
-This will guide the AI model to focus on describing Tom's character in all images.
-
-## Output Structure
-
-For each processed image, you'll have two files in your output directory:
+After processing:
 ```
-my-captions/
-  image1.jpg     # The original image
-  image1.txt     # The caption file
+images/
+  my-project/     # Original images remain here
+    image1.jpg
+    image2.jpg
+    ...
+my-project/       # New directory with processed files
+  image1.jpg
+  image1.txt
   image2.jpg
   image2.txt
   ...
 ```
 
-Each text file contains the generated caption for its corresponding image.
+## Custom Prompts
+
+You can customize the captioning by creating a `.prompt` file in your images directory. For example:
+
+```bash
+echo "an image of tom character" > images/my-project/.prompt
+```
+
+This will guide the AI model to focus on describing Tom's character in all images.
 
 ## Supported Image Formats
 

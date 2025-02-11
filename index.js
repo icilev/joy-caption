@@ -12,35 +12,45 @@ const replicate = new Replicate({
 });
 
 const model = "pipi32167/joy-caption:86674ddd559dbdde6ed40e0bdfc0720c84d82971e288149fcf2c35c538272617";
-const watchDir = './images';
+const baseWatchDir = './images';
 const captionsDir = './captions';
 
-// Get output directory name from command line argument
-const outputDir = process.argv[2];
-if (!outputDir) {
-  console.error('Please provide an output directory name.');
-  console.error('Usage: npm start <output-dir-name>');
+// Get input directory name from command line argument
+const inputDir = process.argv[2];
+if (!inputDir) {
+  console.error('Please provide an input directory name.');
+  console.error('Usage: npm start <directory-name>');
+  console.error('The directory should exist in the images folder.');
+  process.exit(1);
+}
+
+// Set up input and output paths
+const watchDir = path.join(baseWatchDir, inputDir);
+const outputPath = `./${inputDir}`;
+
+// Check if input directory exists
+if (!fs.existsSync(watchDir)) {
+  console.error(`Error: Directory '${watchDir}' does not exist.`);
+  console.error('Please create the directory in the images folder first.');
   process.exit(1);
 }
 
 // Create required directories
-[watchDir, captionsDir].forEach(dir => {
+[baseWatchDir, captionsDir].forEach(dir => {
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir);
   }
 });
 
 // Create output directory
-const outputPath = `./${outputDir}`;
-
-async function createOutputDirs() {
+async function createOutputDir() {
   if (fs.existsSync(outputPath)) {
-    console.error(`Error: Directory '${outputDir}' already exists.`);
+    console.error(`Error: Output directory '${outputPath}' already exists.`);
     process.exit(1);
   }
   
   await mkdir(outputPath);
-  console.log(`Created output directory: ${outputDir}`);
+  console.log(`Created output directory: ${outputPath}`);
 }
 
 // Function to check if file is an image
@@ -97,30 +107,33 @@ async function processImage(imagePath) {
   }
 }
 
-// Process all images in directory
+// Function to process all images
 async function processAllImages() {
-  // Create output directories first
-  await createOutputDirs();
-  
-  const files = await readdir(watchDir);
-  const imageFiles = files.filter(file => isImage(file));
-  
-  if (imageFiles.length === 0) {
-    console.log(`No images found in ${watchDir}. Please add some images and try again.`);
+  try {
+    await createOutputDir();
+    
+    const files = await readdir(watchDir);
+    const imageFiles = files.filter(isImage);
+    
+    if (imageFiles.length === 0) {
+      console.error('No image files found in the directory.');
+      process.exit(1);
+    }
+    
+    console.log(`Found ${imageFiles.length} images to process...`);
+    
+    for (const file of imageFiles) {
+      const imagePath = path.join(watchDir, file);
+      await processImage(imagePath);
+    }
+    
+    console.log('\nAll done! Check the output in:');
+    console.log(`- ${outputPath}`);
+    process.exit(0);
+  } catch (error) {
+    console.error('Error processing images:', error);
     process.exit(1);
   }
-  
-  console.log(`Found ${imageFiles.length} images to process`);
-  console.log('Processing...\n');
-  
-  for (const file of imageFiles) {
-    const imagePath = path.join(watchDir, file);
-    await processImage(imagePath);
-  }
-  
-  console.log('\nAll done! Check the output in:');
-  console.log(`- ${outputPath}`);
-  process.exit(0);
 }
 
 // Start processing
