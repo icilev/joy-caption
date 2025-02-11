@@ -14,7 +14,6 @@ const replicate = new Replicate({
 
 const model = "pipi32167/joy-caption:86674ddd559dbdde6ed40e0bdfc0720c84d82971e288149fcf2c35c538272617";
 const baseWatchDir = './images';
-const captionsDir = './captions';
 
 // Get input directory name from command line argument
 const inputDir = process.argv[2];
@@ -37,11 +36,9 @@ if (!fs.existsSync(watchDir)) {
 }
 
 // Create required directories
-[baseWatchDir, captionsDir].forEach(dir => {
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir);
-  }
-});
+if (!fs.existsSync(baseWatchDir)) {
+  fs.mkdirSync(baseWatchDir);
+}
 
 // Create output directory
 async function createOutputDir() {
