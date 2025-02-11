@@ -4,6 +4,7 @@ import * as fs from 'fs';
 import { readFile, writeFile, readdir, copyFile, mkdir } from 'fs/promises';
 import path from 'path';
 import sharp from 'sharp';
+import ora from 'ora';
 
 dotenv.config();
 
@@ -49,8 +50,14 @@ async function createOutputDir() {
     process.exit(1);
   }
   
-  await mkdir(outputPath);
-  console.log(`Created output directory: ${outputPath}`);
+  const spinner = ora('Creating output directory...').start();
+  try {
+    await mkdir(outputPath);
+    spinner.succeed(`Created output directory: ${outputPath}`);
+  } catch (error) {
+    spinner.fail('Failed to create output directory');
+    throw error;
+  }
 }
 
 // Function to check if file is an image
@@ -65,26 +72,34 @@ async function saveCaptionAndImage(imageName, caption) {
   const baseName = path.basename(imageName, path.extname(imageName));
   const captionFileName = `${baseName}.txt`;
   
-  // Copy image to output directory
-  await copyFile(
-    path.join(watchDir, baseFileName),
-    path.join(outputPath, baseFileName)
-  );
+  const spinner = ora(`Saving ${baseFileName} and its caption...`).start();
   
-  // Save caption to output directory
-  await writeFile(
-    path.join(outputPath, captionFileName),
-    caption
-  );
-  
-  console.log(`Processed: ${baseFileName}`);
+  try {
+    // Copy image to output directory
+    await copyFile(
+      path.join(watchDir, baseFileName),
+      path.join(outputPath, baseFileName)
+    );
+    
+    // Save caption to output directory
+    await writeFile(
+      path.join(outputPath, captionFileName),
+      caption
+    );
+    
+    spinner.succeed(`Processed: ${baseFileName}`);
+  } catch (error) {
+    spinner.fail(`Failed to process: ${baseFileName}`);
+    throw error;
+  }
 }
 
 // Function to process a single image
 async function processImage(imagePath) {
+  const filename = path.basename(imagePath);
+  const spinner = ora(`Generating caption for ${filename}...`).start();
+  
   try {
-    console.log(`\nProcessing image: ${path.basename(imagePath)}`);
-    
     // Convert image to JPEG and get as base64 data URI
     const imageBuffer = await sharp(imagePath)
       .jpeg()
@@ -100,10 +115,12 @@ async function processImage(imagePath) {
       }
     });
 
+    spinner.succeed(`Generated caption for ${filename}`);
     await saveCaptionAndImage(imagePath, output);
     return output;
   } catch (error) {
-    console.error(`Error processing ${imagePath}:`, error);
+    spinner.fail(`Error processing ${filename}`);
+    console.error(error);
   }
 }
 
@@ -112,29 +129,33 @@ async function processAllImages() {
   try {
     await createOutputDir();
     
+    const spinner = ora('Reading directory...').start();
     const files = await readdir(watchDir);
     const imageFiles = files.filter(isImage);
     
     if (imageFiles.length === 0) {
-      console.error('No image files found in the directory.');
+      spinner.fail('No image files found in the directory.');
       process.exit(1);
     }
     
-    console.log(`Found ${imageFiles.length} images to process...`);
+    spinner.succeed(`Found ${imageFiles.length} images to process`);
+    
+    console.log('\n🖼️  Starting image processing...\n');
     
     for (const file of imageFiles) {
       const imagePath = path.join(watchDir, file);
       await processImage(imagePath);
     }
     
-    console.log('\nAll done! Check the output in:');
-    console.log(`- ${outputPath}`);
+    console.log('\n✨ All done! Check the output in:');
+    console.log(`📁 ${outputPath}`);
     process.exit(0);
   } catch (error) {
-    console.error('Error processing images:', error);
+    console.error('❌ Error processing images:', error);
     process.exit(1);
   }
 }
 
 // Start processing
+console.log('🚀 Starting Joy Caption...\n');
 processAllImages();
