@@ -31,11 +31,30 @@ This application uses the Replicate AI model `pipi32167/joy-caption` to generate
    npm start my-project
    ```
 
+   Or with a custom prompt:
+   ```bash
+   npm start my-project "Describe this cat image"
+   ```
+
 The application will:
 - Process all images from `images/my-project`
 - Create a new directory called `my-project` in the root folder
 - Save both the processed images and their corresponding caption files in this directory
 - Each image will have a matching .txt file with the same name (e.g., `photo.jpg` → `photo.txt`)
+
+## Custom Prompts
+
+You can provide a custom prompt when running the application to guide the AI model in generating captions. If no prompt is provided, it will use the default prompt: "A descriptive caption for this image"
+
+Examples:
+```bash
+# Using default prompt
+npm start my-project
+
+# Using custom prompt
+npm start my-project "Describe this cat image in a funny way"
+npm start vacation-photos "Describe this vacation photo with focus on the location"
+```
 
 ## Directory Structure
 
@@ -62,16 +81,6 @@ my-project/       # New directory with processed files
   image2.txt
   ...
 ```
-
-## Custom Prompts
-
-You can customize the captioning by creating a `.prompt` file in your images directory. For example:
-
-```bash
-echo "an image of tom character" > images/my-project/.prompt
-```
-
-This will guide the AI model to focus on describing Tom's character in all images.
 
 ## Supported Image Formats
 

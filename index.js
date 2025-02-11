@@ -14,12 +14,16 @@ const replicate = new Replicate({
 
 const model = "pipi32167/joy-caption:86674ddd559dbdde6ed40e0bdfc0720c84d82971e288149fcf2c35c538272617";
 const baseWatchDir = './images';
+const defaultPrompt = "A descriptive caption for this image";
 
-// Get input directory name from command line argument
+// Get input directory name and optional custom prompt from command line arguments
 const inputDir = process.argv[2];
+const customPrompt = process.argv[3];
+
 if (!inputDir) {
   console.error('Please provide an input directory name.');
-  console.error('Usage: npm start <directory-name>');
+  console.error('Usage: npm start <directory-name> [custom-prompt]');
+  console.error('Example: npm start my-project "Describe this cat image"');
   console.error('The directory should exist in the images folder.');
   process.exit(1);
 }
@@ -107,7 +111,7 @@ async function processImage(imagePath) {
     
     const output = await replicate.run(model, {
       input: {
-        prompt: "A descriptive caption for this image:",
+        prompt: customPrompt || defaultPrompt,
         image: image
       }
     });
@@ -137,7 +141,13 @@ async function processAllImages() {
     
     spinner.succeed(`Found ${imageFiles.length} images to process`);
     
-    console.log('\n🖼️  Starting image processing...\n');
+    console.log('\n🖼️  Starting image processing...');
+    if (customPrompt) {
+      console.log(`📝 Using custom prompt: "${customPrompt}"`);
+    } else {
+      console.log(`📝 Using default prompt: "${defaultPrompt}"`);
+    }
+    console.log();
     
     for (const file of imageFiles) {
       const imagePath = path.join(watchDir, file);
