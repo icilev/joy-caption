@@ -38,9 +38,10 @@ This application uses the Replicate AI model `pipi32167/joy-caption` to generate
 
 The application will:
 - Process all images from `images/my-project`
-- Create a new directory called `my-project` in the root folder
+- Create a new directory called `output/my-project`
+- Rename images sequentially (1.jpg, 2.jpg, etc.) while preserving their original extension
 - Save both the processed images and their corresponding caption files in this directory
-- Each image will have a matching .txt file with the same name (e.g., `photo.jpg` → `photo.txt`)
+- Each image will have a matching .txt file with the same name (e.g., `1.jpg` → `1.txt`)
 
 ## Custom Prompts
 
@@ -62,8 +63,9 @@ Before processing:
 ```
 images/
   my-project/     # Your input directory
-    image1.jpg
-    image2.jpg
+    photo1.jpg
+    vacation.png
+    screenshot.jpg
     ...
 ```
 
@@ -71,15 +73,19 @@ After processing:
 ```
 images/
   my-project/     # Original images remain here
-    image1.jpg
-    image2.jpg
+    photo1.jpg
+    vacation.png
+    screenshot.jpg
     ...
-my-project/       # New directory with processed files
-  image1.jpg
-  image1.txt
-  image2.jpg
-  image2.txt
-  ...
+output/
+  my-project/     # Processed files
+    1.jpg
+    1.txt
+    2.png
+    2.txt
+    3.jpg
+    3.txt
+    ...
 ```
 
 ## Supported Image Formats

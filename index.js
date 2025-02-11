@@ -14,6 +14,7 @@ const replicate = new Replicate({
 
 const model = "pipi32167/joy-caption:86674ddd559dbdde6ed40e0bdfc0720c84d82971e288149fcf2c35c538272617";
 const baseWatchDir = './images';
+const baseOutputDir = './output';
 const defaultPrompt = "A descriptive caption for this image";
 
 // Get input directory name and optional custom prompt from command line arguments
@@ -30,7 +31,7 @@ if (!inputDir) {
 
 // Set up input and output paths
 const watchDir = path.join(baseWatchDir, inputDir);
-const outputPath = `./${inputDir}`;
+const outputPath = path.join(baseOutputDir, inputDir);
 
 // Check if input directory exists
 if (!fs.existsSync(watchDir)) {
@@ -46,6 +47,11 @@ if (!fs.existsSync(baseWatchDir)) {
 
 // Create output directory
 async function createOutputDir() {
+  // Create base output directory if it doesn't exist
+  if (!fs.existsSync(baseOutputDir)) {
+    fs.mkdirSync(baseOutputDir);
+  }
+
   if (fs.existsSync(outputPath)) {
     console.error(`Error: Output directory '${outputPath}' already exists.`);
     process.exit(1);
@@ -68,18 +74,18 @@ const isImage = (filename) => {
 };
 
 // Function to save caption to individual text file and copy image
-async function saveCaptionAndImage(imageName, caption) {
-  const baseFileName = path.basename(imageName);
-  const baseName = path.basename(imageName, path.extname(imageName));
-  const captionFileName = `${baseName}.txt`;
+async function saveCaptionAndImage(imageName, caption, newIndex) {
+  const originalExt = path.extname(imageName);
+  const newFileName = `${newIndex}${originalExt}`;
+  const captionFileName = `${newIndex}.txt`;
   
-  const spinner = ora(`Saving ${baseFileName} and its caption...`).start();
+  const spinner = ora(`Saving image ${newIndex}...`).start();
   
   try {
-    // Copy image to output directory
+    // Copy image to output directory with new name
     await copyFile(
-      path.join(watchDir, baseFileName),
-      path.join(outputPath, baseFileName)
+      imageName,
+      path.join(outputPath, newFileName)
     );
     
     // Save caption to output directory
@@ -88,17 +94,17 @@ async function saveCaptionAndImage(imageName, caption) {
       caption
     );
     
-    spinner.succeed(`Processed: ${baseFileName}`);
+    spinner.succeed(`Processed: ${newFileName}`);
   } catch (error) {
-    spinner.fail(`Failed to process: ${baseFileName}`);
+    spinner.fail(`Failed to process: ${newFileName}`);
     throw error;
   }
 }
 
 // Function to process a single image
-async function processImage(imagePath) {
+async function processImage(imagePath, index) {
   const filename = path.basename(imagePath);
-  const spinner = ora(`Generating caption for ${filename}...`).start();
+  const spinner = ora(`Generating caption for image ${index}...`).start();
   
   try {
     // Convert image to JPEG and get as base64 data URI
@@ -116,11 +122,11 @@ async function processImage(imagePath) {
       }
     });
 
-    spinner.succeed(`Generated caption for ${filename}`);
-    await saveCaptionAndImage(imagePath, output);
+    spinner.succeed(`Generated caption for image ${index}`);
+    await saveCaptionAndImage(imagePath, output, index);
     return output;
   } catch (error) {
-    spinner.fail(`Error processing ${filename}`);
+    spinner.fail(`Error processing image ${index}`);
     console.error(error);
   }
 }
@@ -149,9 +155,14 @@ async function processAllImages() {
     }
     console.log();
     
-    for (const file of imageFiles) {
+    // Sort files to ensure consistent ordering
+    imageFiles.sort();
+    
+    // Process each image with its new index
+    for (let i = 0; i < imageFiles.length; i++) {
+      const file = imageFiles[i];
       const imagePath = path.join(watchDir, file);
-      await processImage(imagePath);
+      await processImage(imagePath, i + 1);
     }
     
     console.log('\n✨ All done! Check the output in:');

@@ -13,3 +13,4 @@ node_modules/
 !/images/.gitkeep
 /chonky/
 /tom/
+/output/
