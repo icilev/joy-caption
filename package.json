@@ -1,22 +1,16 @@
 {
-  "name": "my-replicate-app",
+  "name": "joy-caption",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
   "type": "module",
   "scripts": {
     "start": "node index.js",
     "train": "node train.js",
     "resize": "node resize.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
     "archiver": "^6.0.1",
     "dotenv": "^16.3.1",
     "ora": "^7.0.1",
-    "replicate": "^0.25.1",
     "sharp": "^0.32.6"
   }
 }

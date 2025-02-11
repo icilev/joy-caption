@@ -47,7 +47,7 @@ The application will:
 
 ### Resize Images
 
-You can also resize your images to 1024x1024 pixels (useful for AI training):
+You can resize your images to 1024x1024 pixels (useful for AI training):
 
 ```bash
 npm run resize my-project
@@ -58,6 +58,49 @@ This will:
 - Create a new directory `output/my-project-1024`
 - Resize each image to exactly 1024x1024 pixels
 - Center and crop the images to maintain the square aspect ratio
+
+### Training a LoRA Model
+
+After processing and resizing your images, you can prepare them for LoRA training:
+
+```bash
+npm run train my-project-1024 "TOK"
+```
+
+Where:
+- `my-project-1024` is your processed directory name (must contain 1024x1024 images)
+- `"TOK"` is the trigger word to use in prompts (e.g., "chonky", "anime", "watercolor")
+
+The script will:
+1. Verify all images are 1024x1024
+2. Rename files to match the required format (`a_photo_of_TOK_1.jpg`, etc.)
+3. Create a zip file in the `output` directory
+4. Provide instructions for training on Replicate
+
+#### Training on Replicate
+
+1. Go to [Replicate LoRA Trainer](https://replicate.com/ostris/flux-dev-lora-trainer/train)
+2. Upload the zip file from your `output` directory
+3. Configure the training:
+   - Trigger word: Same as used in the prepare command
+   - Steps: 2070 (recommended)
+   - LoRA rank: 16
+   - Resolution: 1024
+   - Batch size: 2
+   - Learning rate: 0.0005
+   - Optimizer: adamw8bit
+
+#### Training Tips
+
+- Use 12-18 images for best results
+- For character LoRAs:
+  - Use images with different expressions and backgrounds
+  - Pair the trigger word with gender (man, woman) in prompts
+  - Avoid different haircuts or ages
+- For style LoRAs:
+  - Select images that highlight distinctive style features
+  - Use varied subjects but keep style consistent
+  - Try reducing lora strength to 0.8-0.95 when generating
 
 ## Custom Prompts
 
@@ -75,20 +118,9 @@ npm start vacation-photos "Describe this vacation photo with focus on the locati
 
 ## Directory Structure
 
-Before processing:
 ```
 images/
   my-project/     # Your input directory
-    photo1.jpg
-    vacation.png
-    screenshot.jpg
-    ...
-```
-
-After processing:
-```
-images/
-  my-project/     # Original images remain here
     photo1.jpg
     vacation.png
     screenshot.jpg
@@ -107,11 +139,17 @@ output/
     2.png
     3.jpg
     ...
+  my-project.zip    # Training zip (if using train)
 ```
 
 ## Supported Image Formats
 
 - JPG/JPEG
-- PNG
-- GIF
 - WebP
+
+## License
+
+When using FLUX.1 models and their fine-tunes on Replicate:
+- Images generated ON Replicate can be used commercially
+- Images generated OFF Replicate cannot be used commercially
+- LoRA models have the same license as the original FLUX.1-dev base model
