@@ -59,6 +59,21 @@ This will:
 - Resize each image to exactly 1024x1024 pixels
 - Center and crop the images to maintain the square aspect ratio
 
+### Modify Captions
+
+You can modify all captions in a directory to start with a specific prefix:
+
+```bash
+node modify-captions.js my-project "an image of"
+```
+
+This will:
+- Process all caption files (.txt) in `output/my-project`
+- Add the specified prefix to captions that don't already have it
+- Preserve existing captions that already start with the prefix
+
+The default prefix is "an image of" if none is specified.
+
 ### Training a LoRA Model
 
 After processing and resizing your images, you can prepare them for LoRA training:
@@ -153,3 +168,67 @@ When using FLUX.1 models and their fine-tunes on Replicate:
 - Images generated ON Replicate can be used commercially
 - Images generated OFF Replicate cannot be used commercially
 - LoRA models have the same license as the original FLUX.1-dev base model
+
+## Process Steps
+
+1. **Resize Images** (resize.js)
+   ```bash
+   node resize.js <input-folder> <size>
+   ```
+   Resizes all images in the input folder to the specified size (e.g., 1024 for 1024x1024).
+   Output will be in `output/<input-folder>-<size>`.
+
+2. **Generate Captions** (index.js)
+   ```bash
+   node index.js <folder-name>
+   ```
+   Generates captions for all images in the specified folder.
+   Uses GPT-4-Vision to create detailed descriptions.
+
+3. **Modify Captions** (modify-captions.js)
+   ```bash
+   node modify-captions.js <folder-name> <character-name>
+   ```
+   Reformulates captions using Mistral AI to:
+   - Start with "An image of <character-name> character"
+   - Replace character references with the specified name
+   - Maintain detailed descriptions and style
+
+4. **Train LoRA** (train.js)
+   ```bash
+   node train.js <folder-name>
+   ```
+   Prepares the dataset for LoRA training by:
+   - Verifying image dimensions
+   - Checking caption format
+   - Creating the final training dataset
+
+## Setup
+
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+2. Create a `.env` file with your API keys:
+   ```
+   OPENAI_API_KEY=your_openai_key_here
+   MISTRAL_API_KEY=your_mistral_key_here
+   ```
+
+## Requirements
+
+- Node.js 18+
+- OpenAI API key (for GPT-4-Vision)
+- Mistral AI API key (for caption modification)
+
+## Output Structure
+
+```
+output/
+  project-1024/
+    1.png
+    1.txt
+    2.png
+    2.txt
+    ...
