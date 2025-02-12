@@ -15,7 +15,7 @@ const replicate = new Replicate({
 const model = "pipi32167/joy-caption:86674ddd559dbdde6ed40e0bdfc0720c84d82971e288149fcf2c35c538272617";
 const baseWatchDir = './images';
 const baseOutputDir = './output';
-const defaultPrompt = "A descriptive caption for this image";
+const defaultPrompt = "A narrative caption for this image";
 
 // Get input directory name and optional custom prompt from command line arguments
 const inputDir = process.argv[2];
@@ -134,42 +134,48 @@ async function processImage(imagePath, index) {
 // Function to process all images
 async function processAllImages() {
   try {
+    // Create output directory
     await createOutputDir();
     
-    const spinner = ora('Reading directory...').start();
+    // Get list of image files
     const files = await readdir(watchDir);
-    const imageFiles = files.filter(isImage);
+    const imageFiles = files.filter(file => isImage(file));
     
     if (imageFiles.length === 0) {
-      spinner.fail('No image files found in the directory.');
+      console.error('No image files found in the input directory.');
       process.exit(1);
     }
     
-    spinner.succeed(`Found ${imageFiles.length} images to process`);
+    console.log(`Found ${imageFiles.length} images to process.\n`);
     
-    console.log('\n🖼️  Starting image processing...');
-    if (customPrompt) {
-      console.log(`📝 Using custom prompt: "${customPrompt}"`);
-    } else {
-      console.log(`📝 Using default prompt: "${defaultPrompt}"`);
-    }
-    console.log();
-    
-    // Sort files to ensure consistent ordering
-    imageFiles.sort();
-    
-    // Process each image with its new index
-    for (let i = 0; i < imageFiles.length; i++) {
-      const file = imageFiles[i];
+    // Process each image
+    let index = 1;
+    for (const file of imageFiles) {
       const imagePath = path.join(watchDir, file);
-      await processImage(imagePath, i + 1);
+      await processImage(imagePath, index++);
     }
     
-    console.log('\n✨ All done! Check the output in:');
-    console.log(`📁 ${outputPath}`);
-    process.exit(0);
+    // Rename the output directory to include "& caption"
+    const newOutputPath = path.join(baseOutputDir, `${inputDir}_caption`);
+    if (fs.existsSync(newOutputPath)) {
+      console.error(`Error: Directory '${newOutputPath}' already exists.`);
+      process.exit(1);
+    }
+    
+    const spinner = ora('Renaming output directory...').start();
+    try {
+      await fs.promises.rename(outputPath, newOutputPath);
+      spinner.succeed(`Renamed output directory to: ${path.basename(newOutputPath)}`);
+    } catch (error) {
+      spinner.fail('Failed to rename output directory');
+      throw error;
+    }
+    
+    console.log('\n✨ All images processed successfully!');
+    console.log(`\nResults saved in: ${path.basename(newOutputPath)}`);
+    
   } catch (error) {
-    console.error('❌ Error processing images:', error);
+    console.error('Error processing images:', error);
     process.exit(1);
   }
 }

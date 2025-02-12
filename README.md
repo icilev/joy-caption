@@ -41,13 +41,13 @@ node resize.js <input-folder> <size>
 
 Example:
 ```bash
-node resize.js my-project 1024
+node resize.js my-project 512
 ```
 
 This will:
 - Take images from `images/my-project`
-- Create `output/my-project-1024`
-- Resize each image to 1024x1024 pixels
+- Create `output/my-project-512`
+- Resize each image to 512x512 pixels
 - Center and crop images to maintain square aspect ratio
 
 ### 2. Generate Captions
@@ -60,7 +60,7 @@ node index.js <folder-name>
 
 Example:
 ```bash
-node index.js my-project-1024
+node index.js my-project-512
 ```
 
 Features:
@@ -68,6 +68,7 @@ Features:
 - Creates matching .txt files for each image
 - Generates detailed, contextual descriptions
 - Supports custom prompts for specific description styles
+- Renames the output directory to `my-project-512 & caption`
 
 ### 3. Modify Captions
 
@@ -79,7 +80,7 @@ node modify-captions.js <folder-name> <character-name>
 
 Example:
 ```bash
-node modify-captions.js my-project-1024 "chonky"
+node modify-captions.js "my-project-512_caption" "chonky"
 ```
 
 This will:
@@ -98,11 +99,11 @@ node train.js <folder-name>
 
 Example:
 ```bash
-node train.js my-project-1024
+node train.js my-project-512
 ```
 
 The script will:
-- Verify image dimensions (must be 1024x1024)
+- Verify image dimensions (must be 512x512)
 - Check caption formatting
 - Create the final training dataset
 - Generate a zip file ready for training
@@ -135,11 +136,8 @@ project/
 │       └── photo2.png
 │
 └── output/                # Generated files
-    ├── my-project-1024/  # Processed images
-    │   ├── 1.jpg         # Resized image
-    │   ├── 1.txt         # Image caption
-    │   ├── 2.jpg
-    │   └── 2.txt
+    ├── my-project-512/  # Resized images
+    ├── my-project-512 & caption/  # Images with captions
     └── my-project.zip    # Training dataset
 ```
 

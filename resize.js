@@ -22,7 +22,7 @@ if (!inputDir) {
 
 // Set up paths
 const sourcePath = path.join(__dirname, 'images', inputDir);
-const outputPath = path.join(__dirname, 'output', `${inputDir}-1024`);
+const outputPath = path.join(__dirname, 'output', `${inputDir}-512`);
 
 // Check if source directory exists
 if (!fs.existsSync(sourcePath)) {
@@ -51,14 +51,14 @@ async function resizeImage(filename) {
   
   try {
     await sharp(inputPath)
-      // D'abord on redimensionne pour que le plus petit côté fasse 1024
-      .resize(1024, 1024, {
+      // D'abord on redimensionne pour que le plus petit côté fasse 512
+      .resize(512, 512, {
         fit: 'cover',      // Couvre toute la zone en coupant l'excédent
         position: 'center' // Centre l'image avant de couper
       })
       .toFile(outputImagePath);
 
-    spinner.succeed(`Resized ${filename} to 1024x1024`);
+    spinner.succeed(`Resized ${filename} to 512x512`);
   } catch (error) {
     spinner.fail(`Failed to resize ${filename}`);
     console.error(error);

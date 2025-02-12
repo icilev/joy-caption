@@ -23,7 +23,7 @@ if (!inputDir || !triggerWord) {
 }
 
 // Set up paths
-const sourceDir = inputDir.endsWith('-1024') ? inputDir : `${inputDir}-1024`;
+const sourceDir = inputDir.endsWith('-512') ? inputDir : `${inputDir}-512`;
 const sourcePath = path.join(__dirname, 'output', sourceDir);
 const zipPath = path.join(__dirname, 'output', `${inputDir}.zip`);
 
@@ -36,25 +36,34 @@ if (!fs.existsSync(sourcePath)) {
 }
 
 // Function to verify image dimensions
-async function verifyImageDimensions(directory) {
+async function verifyImageDimensions(inputDir) {
   const spinner = ora('Verifying image dimensions...').start();
+  
+  try {
+    const imageFiles = await getImageFiles(inputDir);
+    
+    for (const file of imageFiles) {
+      const metadata = await sharp(file).metadata();
+      
+      if (metadata.width !== 512 || metadata.height !== 512) {
+        spinner.fail(`Error: Image ${file} is not 512x512 (found ${metadata.width}x${metadata.height})`);
+        process.exit(1);
+      }
+    }
+    
+    spinner.succeed(`Verified ${imageFiles.length} images are all 512x512`);
+  } catch (error) {
+    spinner.fail('Error verifying image dimensions');
+    console.error(error);
+    process.exit(1);
+  }
+}
+
+// Function to get image files
+async function getImageFiles(directory) {
   const files = await readdir(directory);
   const imageFiles = files.filter(file => /\.(jpg|jpeg|png|gif|webp)$/i.test(file));
-
-  for (const file of imageFiles) {
-    const imagePath = path.join(directory, file);
-    const metadata = await sharp(imagePath).metadata();
-    
-    if (metadata.width !== 1024 || metadata.height !== 1024) {
-      spinner.fail(`Error: Image ${file} is not 1024x1024 (found ${metadata.width}x${metadata.height})`);
-      console.error('\nPlease resize your images first:');
-      console.error(`npm run resize ${inputDir}`);
-      process.exit(1);
-    }
-  }
-
-  spinner.succeed(`Verified ${imageFiles.length} images are all 1024x1024`);
-  return imageFiles.length;
+  return imageFiles.map(file => path.join(directory, file));
 }
 
 // Function to rename files with trigger word
@@ -123,19 +132,9 @@ async function main() {
   console.log('🚀 Preparing files for LoRA training...\n');
   
   try {
-    // Verify all images are 1024x1024
-    const imageCount = await verifyImageDimensions(sourcePath);
+    // Verify all images are 512x512
+    await verifyImageDimensions(sourcePath);
     
-    if (imageCount === 0) {
-      console.error('❌ No images found in the source directory');
-      process.exit(1);
-    }
-
-    if (imageCount < 12 || imageCount > 18) {
-      console.warn('\n⚠️  Warning: Recommended dataset size is 12-18 images');
-      console.warn(`   Your dataset has ${imageCount} images`);
-    }
-
     // Rename files for training
     const tempDir = await renameFiles(sourcePath, triggerWord);
 
@@ -153,7 +152,7 @@ async function main() {
     console.log(`   - Trigger word: ${triggerWord}`);
     console.log('   - Steps: 2070');
     console.log('   - LoRA rank: 16');
-    console.log('   - Resolution: 1024');
+    console.log('   - Resolution: 512');
     console.log('   - Batch size: 2');
     console.log('   - Learning rate: 0.0005');
     console.log('   - Optimizer: adamw8bit');
