@@ -5,7 +5,8 @@
   "scripts": {
     "start": "node index.js",
     "train": "node train.js",
-    "resize": "node resize.js"
+    "resize": "node resize.js",
+    "help": "node commands.js"
   },
   "dependencies": {
     "@mistralai/mistralai": "^1.5.0",

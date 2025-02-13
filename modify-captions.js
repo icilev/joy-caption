@@ -53,7 +53,7 @@ Réponds uniquement avec la nouvelle légende, sans autre texte.`;
           model: "mistral-large-latest",
           messages: [{
             role: "system",
-            content: "Tu es un expert en rédaction de légendes d'images. Tu dois toujours commencer par le préfixe exact demandé et reformuler le reste en gardant le sens et les détails."
+            content: "Tu es un expert en rédaction de légendes d'images. Tu dois toujours commencer par le préfixe exact demandé et reformuler le reste en gardant le sens et les détails. Supprimes tous les détails qui ne parle pas du personnage."
           }, {
             role: "user",
             content: prompt

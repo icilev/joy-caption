@@ -15,7 +15,7 @@ const replicate = new Replicate({
 const model = "pipi32167/joy-caption:86674ddd559dbdde6ed40e0bdfc0720c84d82971e288149fcf2c35c538272617";
 const baseWatchDir = './images';
 const baseOutputDir = './output';
-const defaultPrompt = "A narrative caption for this image";
+const defaultPrompt = "A narrative caption for this character only in a natural language";
 
 // Get input directory name and optional custom prompt from command line arguments
 const inputDir = process.argv[2];
